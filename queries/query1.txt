@@ -1,0 +1,38 @@
+{
+  stopPlace(
+    id: "NSR:StopPlace:59623"
+  ) {
+    id
+    name
+    estimatedCalls(
+      timeRange: 72100,
+      numberOfDepartures: 10
+    ) {
+      realtime
+      aimedArrivalTime
+      aimedDepartureTime
+      expectedArrivalTime
+      expectedDepartureTime
+      actualArrivalTime
+      actualDepartureTime
+      date
+      forBoarding
+      forAlighting
+      destinationDisplay {
+        frontText
+      }
+      quay {
+        id
+      }
+      serviceJourney {
+        journeyPattern {
+          line {
+            id
+            name
+            transportMode
+          }
+        }
+      }
+    }
+  }
+}
