@@ -2,4 +2,6 @@ from entur_collector.dataanalysis.convertdata import save_to_csv, find_deviation
 
 
 if __name__ == '__main__':
-    find_deviations("data")
+    dev = find_deviations("from-do")
+    dev.to_csv('deviations.csv')
+

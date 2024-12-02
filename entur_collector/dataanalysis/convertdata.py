@@ -72,10 +72,11 @@ def find_deviations(data_dir='data'):
     # aimed_arrival/line_id present at the final time stamp, since we do not
     # know when they actually will arrive.
     df['delay'] = df.expected_arrival - df.aimed_arrival
-    print(df.groupby(['aimed_arrival', 'line_id']).max())
+    # print(df.groupby(['aimed_arrival', 'line_id']).max())
     # TODO: create the final data set for analysis:
     # scatter/violin plot weekday on x-axis and delay on the y-axis, color based on
     # aimed_arrival (without date)
+    return df.groupby(['aimed_arrival', 'line_id']).max()
 
 
 
@@ -102,4 +103,5 @@ def save_to_csv(data_dir='data', output_file='trips.csv'):
 
 
 if __name__ == '__main__':
-    find_deviations()
+    dev = find_deviations()
+    dev.to_csv('deviations.csv')
