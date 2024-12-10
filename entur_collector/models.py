@@ -31,12 +31,6 @@ class EstimatedCall(BaseModel):
     aimedDepartureTime: datetime
     expectedArrivalTime: datetime
     expectedDepartureTime: datetime
-    actualArrivalTime: Optional[datetime]
-    actualDepartureTime: Optional[datetime]
-    date: str
-    forBoarding: bool
-    forAlighting: bool
-    destinationDisplay: DestinationDisplay
     quay: Quay
     serviceJourney: ServiceJourney
 
@@ -57,4 +51,4 @@ class Response(BaseModel):
 
 class EnturData(BaseModel):
     response: Response
-    timestamp: str 
+    timestamp: str

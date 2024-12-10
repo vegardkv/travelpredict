@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import schedule
 import time
 import pathlib
-from .config import ENTUR_API_URL, HEADERS, OUTPUT_DIR
+from .config import ENTUR_API_URL, HEADERS, RAW_OUTPUT_DIR
 
 
 def download_realtime_data(query, requestor_id=None):
@@ -40,7 +40,7 @@ def download_realtime_data(query, requestor_id=None):
             }
             
             # Save data to file
-            with open(pathlib.Path(OUTPUT_DIR, filename), "w", encoding="utf-8") as f:
+            with open(pathlib.Path(RAW_OUTPUT_DIR, filename), "w", encoding="utf-8") as f:
                 json.dump(output, f, ensure_ascii=False)
             
             print(f"Data downloaded successfully at {timestamp}")

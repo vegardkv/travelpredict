@@ -3,7 +3,10 @@ ENTUR_API_URL = " https://api.entur.io/journey-planner/v3/graphql"
 HEADERS = {
     "ET-Client-Name": "your-client-name"  # Replace with your client name
 }
-OUTPUT_DIR = "data"
+
+RAW_OUTPUT_DIR = "data"
+PROCESSED_DIR = "processed"
+DEVIATIONS_DIR = "deviations"
 
 # Default time settings
 DEFAULT_START_TIME = "07:00"  # Start time in 24-hour format
