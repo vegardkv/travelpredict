@@ -5,8 +5,10 @@ from pathlib import Path
 from ..config import RAW_OUTPUT_DIR, PROCESSED_DIR, DEVIATIONS_DIR
 import pandas as pd
 from datetime import datetime
+import tqdm
 
-def parse_data_folder(data_dir='data'):
+
+def parse_data_folder(data_dir=RAW_OUTPUT_DIR):
     """Parse all JSON files in the data directory and return list of EnturData objects
     
     Args:
@@ -19,7 +21,7 @@ def parse_data_folder(data_dir='data'):
     data_path = Path(data_dir)
     
     # Get all JSON files in directory
-    for file in data_path.glob('*.json'):
+    for file in tqdm.tqdm(data_path.glob('*.json')):
         with open(file) as f:
             try:
                 js = f.read()
