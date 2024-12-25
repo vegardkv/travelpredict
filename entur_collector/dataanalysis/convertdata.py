@@ -17,23 +17,23 @@ def parse_data_folder(data_dir=RAW_OUTPUT_DIR):
     Returns:
         list[EnturData]: List of parsed EnturData objects
     """
-    data_files = []
     data_path = Path(data_dir)
-    
-    # Get all JSON files in directory
-    for file in tqdm.tqdm(data_path.glob('*.json')):
-        with open(file) as f:
-            try:
-                js = f.read()
-                data = EnturData.model_validate_json(js)
-                data_files.append(data)
-            except Exception as e:
-                print(f"Error parsing {file}: {str(e)}")
-                
+
+    def data_files():
+        # Get all JSON files in directory
+        for file in tqdm.tqdm(data_path.glob('*.json')):
+            with open(file) as f:
+                try:
+                    js = f.read()
+                    data = EnturData.model_validate_json(js)
+                    yield data
+                except Exception as e:
+                    print(f"Error parsing {file}: {str(e)}")
+
     return data_files
 
 
-def convert_to_dataframe(data_list: list[EnturData]) -> pd.DataFrame:
+def convert_to_dataframe(data_list) -> pd.DataFrame:
     """Convert list of EnturData objects into a flattened pandas DataFrame
     
     Args:
@@ -44,7 +44,7 @@ def convert_to_dataframe(data_list: list[EnturData]) -> pd.DataFrame:
     """
     flattened_data = []
     
-    for data in data_list:
+    for data in data_list():
         for trip in data.response.data.stopPlace.estimatedCalls:
             # Create a flat dictionary for each trip
             # Parse the timestamp with a specific time format
