@@ -1,0 +1,7 @@
+aimed_arrival,line_id,timestamp,realtime,aimed_departure,expected_arrival,expected_departure,quay_id,line_name,transport_mode,expected_delay,timestamp_delay
+2024-12-10 13:08:00+01:00,RUT:Line:160,2024-12-10 13:08:39+01:00,True,2024-12-10 13:08:00+01:00,2024-12-10 13:08:48+01:00,2024-12-10 13:08:48+01:00,NSR:Quay:6982,Rykkinn -Nationaltheatret,bus,0 days 00:00:48,0 days 00:00:39
+2024-12-10 13:18:00+01:00,RUT:Line:160,2024-12-10 13:09:55+01:00,True,2024-12-10 13:18:00+01:00,2024-12-10 13:18:01+01:00,2024-12-10 13:18:01+01:00,NSR:Quay:6982,Rykkinn -Nationaltheatret,bus,0 days 00:00:01,-1 days +23:51:55
+2024-12-10 13:28:00+01:00,RUT:Line:160,2024-12-10 13:09:55+01:00,True,2024-12-10 13:28:00+01:00,2024-12-10 13:28:00+01:00,2024-12-10 13:28:00+01:00,NSR:Quay:6982,Rykkinn -Nationaltheatret,bus,0 days 00:00:00,-1 days +23:41:55
+2024-12-10 13:38:00+01:00,RUT:Line:160,2024-12-10 13:09:55+01:00,True,2024-12-10 13:38:00+01:00,2024-12-10 13:38:00+01:00,2024-12-10 13:38:00+01:00,NSR:Quay:6982,Rykkinn -Nationaltheatret,bus,0 days 00:00:00,-1 days +23:31:55
+2024-12-10 13:48:00+01:00,RUT:Line:160,2024-12-10 13:09:55+01:00,True,2024-12-10 13:48:00+01:00,2024-12-10 13:48:00+01:00,2024-12-10 13:48:00+01:00,NSR:Quay:6982,Rykkinn -Nationaltheatret,bus,0 days 00:00:00,-1 days +23:21:55
+2024-12-10 13:58:00+01:00,RUT:Line:160,2024-12-10 13:09:55+01:00,True,2024-12-10 13:58:00+01:00,2024-12-10 13:58:00+01:00,2024-12-10 13:58:00+01:00,NSR:Quay:6982,Rykkinn -Nationaltheatret,bus,0 days 00:00:00,-1 days +23:11:55
