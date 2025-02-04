@@ -2,7 +2,7 @@ from entur_collector.models import EnturData
 import os
 import json
 from pathlib import Path
-from ..config import RAW_OUTPUT_DIR, PROCESSED_DIR, DEVIATIONS_DIR
+from ..config import RAW_OUTPUT_DIR, PROCESSED_DIR, DEVIATIONS_DIR, ROUTE_LINE_ID
 import pandas as pd
 from datetime import datetime
 import tqdm
@@ -76,6 +76,22 @@ def find_deviations():
     df['expected_delay'] = df.expected_arrival - df.aimed_arrival
     df['timestamp_delay'] = df.timestamp - df.aimed_arrival
     return df.groupby(['aimed_arrival', 'line_id']).max()
+
+
+def read_deviations():
+    dfs = [
+        pd.read_csv(
+            fn,
+            parse_dates=[
+                'aimed_arrival',
+            ]
+        )
+        for fn in Path(DEVIATIONS_DIR).glob('*.csv')
+    ]
+    df = pd.concat(dfs, ignore_index=True)
+    df['expected_delay'] = pd.to_timedelta(df['expected_delay'])
+    df = df[df.line_id == ROUTE_LINE_ID]
+    return df
 
 
 def process_raw_data():

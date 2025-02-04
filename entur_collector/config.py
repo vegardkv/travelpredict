@@ -7,6 +7,10 @@ HEADERS = {
 RAW_OUTPUT_DIR = "data"
 PROCESSED_DIR = "processed"
 DEVIATIONS_DIR = "deviations"
+REFINED_DIR = "refined"
+
+# Data reduction
+ROUTE_LINE_ID = "RUT:Line:5260"
 
 # Default time settings
 DEFAULT_START_TIME = "07:00"  # Start time in 24-hour format
