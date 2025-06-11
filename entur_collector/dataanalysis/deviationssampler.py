@@ -10,9 +10,15 @@ def refine_deviations():
 
     # Load the deviations data
     df = read_deviations()
-    df = df[['aimed_arrival', 'timestamp', 'expected_arrival', 'expected_delay']]
-    df['day_of_week'] = df['aimed_arrival'].dt.dayofweek
-    df['time_of_day'] = df['aimed_arrival'].dt.time
-    df['day_since_start'] = (df['aimed_arrival'] - df['aimed_arrival'].min()).dt.days
-    df['month'] = df['aimed_arrival'].dt.month
+    df = df[[
+        'aimed_arrival',
+        'timestamp',
+        'expected_arrival',
+        'expected_delay',
+        'day_of_week',
+        'time_of_day',
+        'month',
+        'day_number',
+    ]]
+    df['day_since_start'] = df['day_number'] - df['day_number'].min()
     return df

@@ -80,17 +80,22 @@ def find_deviations():
 
 def read_deviations():
     dfs = [
-        pd.read_csv(
-            fn,
-            parse_dates=[
-                'aimed_arrival',
-            ]
-        )
+        _parse_deviations_csv(fn)
         for fn in Path(DEVIATIONS_DIR).glob('*.csv')
     ]
     df = pd.concat(dfs, ignore_index=True)
-    df['expected_delay'] = pd.to_timedelta(df['expected_delay'])
+    return df
+
+
+def _parse_deviations_csv(file_path) -> pd.DataFrame:
+    df = pd.read_csv(file_path, parse_dates=['aimed_arrival'])
     df = df[df.line_id == ROUTE_LINE_ID]
+    df['expected_delay'] = pd.to_timedelta(df['expected_delay'])
+    df['day_of_week'] = df['aimed_arrival'].dt.dayofweek
+    df['time_of_day'] = df['aimed_arrival'].dt.time
+    df['month'] = df['aimed_arrival'].dt.month
+    start_date = pd.Timestamp(year=2024, month=12, day=1, tz=df['aimed_arrival'].dt.tz)
+    df['day_number'] = (df['aimed_arrival'] - start_date).dt.days
     return df
 
 
