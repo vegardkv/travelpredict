@@ -1,0 +1,34 @@
+[project]
+name = "travel-predict"
+version = "0.1.0"
+description = "Travel prediction system using Entur real-time data"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "Your Name", email = "your.email@example.com" },
+]
+
+dependencies = [
+    "requests>=2.31.0",
+    "schedule>=1.2.0",
+    "pydantic>=2.0.0",
+    "pandas>=2.0.0",
+    "pytz>=2023.3",
+    "tqdm>=4.66.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "jupyter>=1.0.0",
+    "ipykernel>=6.25.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "jupyter>=1.0.0",
+    "ipykernel>=6.25.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+]
