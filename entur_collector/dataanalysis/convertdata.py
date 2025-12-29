@@ -3,6 +3,7 @@ import os
 import json
 from pathlib import Path
 from ..config import RAW_OUTPUT_DIR, PROCESSED_DIR, DEVIATIONS_DIR, ROUTE_LINE_ID
+from ..database import supabase
 import pandas as pd
 from datetime import datetime
 import tqdm
@@ -78,35 +79,106 @@ def find_deviations():
     return df.groupby(['aimed_arrival', 'line_id']).max()
 
 
-def read_deviations():
-    dfs = [
-        _parse_deviations_csv(fn)
-        for fn in Path(DEVIATIONS_DIR).glob('*.csv')
-    ]
-    df = pd.concat(dfs, ignore_index=True)
-    return df
-
-
-def _parse_deviations_csv(file_path) -> pd.DataFrame:
-    df = pd.read_csv(file_path, parse_dates=['aimed_arrival'])
-    df = df[df.line_id == ROUTE_LINE_ID]
-    df['expected_delay'] = pd.to_timedelta(df['expected_delay'])
-    df['day_of_week'] = df['aimed_arrival'].dt.dayofweek
-    df['time_of_day'] = df['aimed_arrival'].dt.time
-    df['month'] = df['aimed_arrival'].dt.month
-    start_date = pd.Timestamp(year=2024, month=12, day=1, tz=df['aimed_arrival'].dt.tz)
-    df['day_number'] = (df['aimed_arrival'] - start_date).dt.days
-    return df
+def read_deviations(line_id=None):
+    """Read deviations from Supabase database.
+    
+    Args:
+        line_id (str, optional): Filter by specific line_id. Defaults to ROUTE_LINE_ID.
+        
+    Returns:
+        pd.DataFrame: DataFrame with deviations and derived columns
+    """
+    if line_id is None:
+        line_id = ROUTE_LINE_ID
+    
+    # Query Supabase for deviations
+    try:
+        query = supabase.table('deviations').select('*')
+        if line_id:
+            query = query.eq('line_id', line_id)
+        
+        response = query.execute()
+        
+        if not response.data:
+            print(f"No deviations found for line_id={line_id}")
+            return pd.DataFrame()
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(response.data)
+        
+        # Convert timestamp columns to datetime (no timezone since database uses TIMESTAMP)
+        for col in ['aimed_arrival', 'timestamp', 'aimed_departure', 'expected_arrival', 'expected_departure']:
+            df[col] = pd.to_datetime(df[col])
+        
+        # Convert integer seconds back to timedelta
+        df['expected_delay'] = pd.to_timedelta(df['expected_delay_seconds'], unit='s')
+        df['timestamp_delay'] = pd.to_timedelta(df['timestamp_delay_seconds'], unit='s')
+        
+        # Add derived columns (matching old _parse_deviations_csv behavior)
+        df['day_of_week'] = df['aimed_arrival'].dt.dayofweek
+        df['time_of_day'] = df['aimed_arrival'].dt.time
+        df['month'] = df['aimed_arrival'].dt.month
+        
+        # Calculate day_number relative to start_date (naive datetime)
+        start_date = pd.Timestamp(year=2024, month=12, day=1)
+        df['day_number'] = (df['aimed_arrival'] - start_date).dt.days
+        
+        return df
+        
+    except Exception as e:
+        print(f"Error reading from database: {e}")
+        raise
 
 
 def process_raw_data():
-    # Find deviations and save to CSV
+    """Process raw data and save deviations to Supabase database."""
+    # Find deviations
     df = find_deviations()
-    p = Path(DEVIATIONS_DIR)
-    p.mkdir(exist_ok=True)
-    timestamp = pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')
-    df.to_csv(p / f'deviations_{timestamp}.csv')
-
+    
+    if len(df) == 0:
+        print("No deviations found")
+        return
+    
+    # Reset index to make aimed_arrival and line_id regular columns
+    df = df.reset_index()
+    
+    # Convert timedelta columns to integer seconds for database storage
+    df['expected_delay_seconds'] = df['expected_delay'].dt.total_seconds().astype(int)
+    df['timestamp_delay_seconds'] = df['timestamp_delay'].dt.total_seconds().astype(int)
+    
+    # Drop the original timedelta columns (not needed for DB insert)
+    df = df.drop(columns=['expected_delay', 'timestamp_delay'])
+    
+    # Convert datetime columns to naive datetime (remove timezone) and then to ISO format strings
+    datetime_columns = ['aimed_arrival', 'timestamp', 'aimed_departure', 'expected_arrival', 'expected_departure']
+    for col in datetime_columns:
+        if col in df.columns:
+            # Remove timezone information by converting to naive datetime
+            df[col] = df[col].dt.tz_localize(None).dt.strftime('%Y-%m-%dT%H:%M:%S')
+    
+    # Convert DataFrame to list of dictionaries for Supabase
+    records = df.to_dict('records')
+    
+    # Batch insert to Supabase (1000 records per batch)
+    BATCH_SIZE = 1000
+    total_inserted = 0
+    
+    for i in range(0, len(records), BATCH_SIZE):
+        batch = records[i:i+BATCH_SIZE]
+        try:
+            # Use upsert to handle duplicates (updates existing records with same aimed_arrival+line_id)
+            response = supabase.table('deviations').upsert(
+                batch,
+                on_conflict='aimed_arrival,line_id'
+            ).execute()
+            total_inserted += len(batch)
+            print(f"Inserted/updated batch {i//BATCH_SIZE + 1}: {len(batch)} records")
+        except Exception as e:
+            print(f"Error inserting batch {i//BATCH_SIZE + 1}: {e}")
+            raise
+    
+    print(f"Total records inserted/updated: {total_inserted}")
+    
     # Move processed data
     p = Path(PROCESSED_DIR)
     p.mkdir(exist_ok=True)
